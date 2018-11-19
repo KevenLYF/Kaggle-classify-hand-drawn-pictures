@@ -52,6 +52,12 @@ def TrimImage(img):
             break
         right -= 1
 
+    if up > down or left > right:
+        up = 0
+        down = img_dim[0]
+        left = 0
+        right = img_dim[1]
+        
     result = img[up:down, left:right]
     result = cv2.resize(result, (100, 100)) 
 
