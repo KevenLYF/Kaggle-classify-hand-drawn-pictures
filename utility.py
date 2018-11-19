@@ -1,3 +1,6 @@
+import numpy as np
+import cv2
+
 # img: flatten array (no need to reshape)
 # return: image (100 * 100) with noise removed, value is either 0 or 255
 def cleanNoise(img):
