@@ -21,3 +21,35 @@ def cleanNoise(img):
         if sizes[i] >= min_size:
             img2[output == i + 1] = 255
     return img2
+
+def TrimImage(img):
+    img_dim = img.shape
+    up = 0
+    down = img_dim[0]
+    left = 0
+    right = img_dim[1]
+
+    for i in range(img_dim[0]):
+        if (np.any(img[i, :] == 255)):
+            break
+        up += 1
+
+    for i in range(img_dim[0]-1, 0, -1):
+        if (np.any(img[i, :] == 255)):
+            break
+        down -= 1
+
+    for i in range(img_dim[1]):
+        if (np.any(img[:, i] == 255)):
+            break
+        left += 1
+
+    for i in range(img_dim[1]-1, 0, -1):
+        if (np.any(img[:, i] == 255)):
+            break
+        right -= 1
+
+    result = img[up:down, left:right]
+    result = cv2.resize(result, (100, 100)) 
+
+    return result
