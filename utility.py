@@ -3,6 +3,21 @@ import cv2
 
 # img: flatten array (no need to reshape)
 # return: image (100 * 100) with noise removed, value is either 0 or 255
+def filter(img, ratio):
+    img = img.astype(np.uint8)
+
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
+    sizes = stats[1:, -1];
+    nb_components = nb_components - 1
+
+    min_size = int(img.sum() / 255 * ratio)  # 0.45 is the relative ratio
+    img2 = np.zeros((output.shape))
+
+    for i in range(0, nb_components):
+        if sizes[i] >= min_size:
+            img2[output == i + 1] = 255
+    return img2
+
 def cleanNoise(img):
     img = img.reshape(100, 100)
     for i in range(100):
@@ -12,32 +27,14 @@ def cleanNoise(img):
             else:
                 img[i][j] = 0
 
-    img=img.astype(np.uint8)
+    img2 = filter(img, 0.04)
+    img2 = filter(img2, 0.3)
+    img2 = filter(img2, 0.35)
+    img2 = filter(img2, 0.4)
+    img2 = filter(img2, 0.45)
+    img2 = filter(img2, 0.5)
+    img2 = filter(img2, 0.52)
 
-    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
-    sizes = stats[1:, -1]; nb_components = nb_components - 1
-
-    min_size = int(img.sum()/255*0.06)  # 0.08 is the relative ratio
-    img2 = np.zeros((output.shape))
-
-    for i in range(0, nb_components):
-        if sizes[i] >= min_size:
-            img2[output == i + 1] = 255
-    return img2
-
-def cleanNoise2(img):
-    img = img.astype(np.uint8)
-
-    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
-    sizes = stats[1:, -1];
-    nb_components = nb_components - 1
-
-    min_size = int(img.sum() / 255 * 0.45)  # 0.45 is the relative ratio
-    img2 = np.zeros((output.shape))
-
-    for i in range(0, nb_components):
-        if sizes[i] >= min_size:
-            img2[output == i + 1] = 255
     return img2
 
 def TrimImage(img):
