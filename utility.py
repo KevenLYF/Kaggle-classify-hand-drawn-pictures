@@ -25,6 +25,21 @@ def cleanNoise(img):
             img2[output == i + 1] = 255
     return img2
 
+def cleanNoise2(img):
+    img = img.astype(np.uint8)
+
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
+    sizes = stats[1:, -1];
+    nb_components = nb_components - 1
+
+    min_size = int(img.sum() / 255 * 0.45)  # 0.45 is the relative ratio
+    img2 = np.zeros((output.shape))
+
+    for i in range(0, nb_components):
+        if sizes[i] >= min_size:
+            img2[output == i + 1] = 255
+    return img2
+
 def TrimImage(img):
     img_dim = img.shape
     up = 0
