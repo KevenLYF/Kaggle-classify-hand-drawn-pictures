@@ -9,7 +9,7 @@ from keras.optimizers import SGD, Adam, RMSprop
 from keras.layers.core import Activation
 from keras import backend as K
 from keras.utils import np_utils
-from utility import cleanNoise, TrimImage
+from utility import cleanNoise, TrimImage, AugmentImages
 
 IMG_SIZE = 56
 
@@ -25,6 +25,9 @@ targets = []
 for index, row in training_label.iterrows():
     targets.append(category_index[row['Category']])
 targets = np.array(targets)
+targets = np.concatenate((targets, targets))
+print(targets.shape)
+
 
 training = np.load('input/train_images.npy', encoding='bytes')
 
@@ -35,6 +38,9 @@ for i in range(10000):
     features[i, :, :, 0] = temp_img
     #features[i, :, :, 1] = temp_img
     #features[i, :, :, 2] = temp_img
+
+features = AugmentImages(features)
+print(features.shape)
 
 features /= 255
 

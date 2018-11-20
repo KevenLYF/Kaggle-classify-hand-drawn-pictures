@@ -150,3 +150,12 @@ def moveToMid(img):
         newImg[i, horiInterval: horiInterval+width] = obj[i-verInterval]
 
     return newImg
+
+def AugmentImages(images):
+    result = np.zeros(images.shape)
+    for i in range(len(images)):
+        horizontal_img = cv2.flip(images[i], 0)
+        horizontal_img = horizontal_img.reshape((IMG_SIZE, IMG_SIZE, 1))
+        result[i] = horizontal_img
+    result = np.vstack((images, result))
+    return result
