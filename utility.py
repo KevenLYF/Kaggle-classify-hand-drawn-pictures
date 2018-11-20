@@ -82,7 +82,14 @@ def TrimImage(img):
         right = img_dim[1]
         
     result = img[up:down, left:right]
-    result = cv2.resize(result, (32, 32)) 
+    result = cv2.resize(result, (50, 50)) 
+
+    for i in range(50):
+        for j in range(50):
+            if (img[i][j] > 200):
+                img[i][j] = 255
+            else:
+                img[i][j] = 0    
 
     return result
 

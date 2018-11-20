@@ -21,7 +21,7 @@ targets = np.array(targets)
 
 training = np.load('input/train_images.npy', encoding='bytes')
 
-features = np.zeros(shape=(10000, 32, 32, 3), dtype=float)
+features = np.zeros(shape=(10000, 50, 50, 3), dtype=float)
 for i in range(10000):
 	temp_img = cleanNoise(training[i, 1])
 	temp_img = TrimImage(temp_img)
@@ -40,19 +40,13 @@ testing_target = targets[8000:10000]
 training_target_one_hot = keras.utils.to_categorical(training_target)
 testing_target_one_hot = keras.utils.to_categorical(testing_target)
 
-#testing = np.load('input/test_images.npy', encoding='bytes')
-#testing_target = testing[:, 0]
-#testing_feature = testing[:, 1]
-#testing_feature = testing_feature.astype('float32')
-#testing_feature /= 255
-#testing_target_one_hot = to_categorical(testing_target)
 
 model = Sequential()
 #model.add(Dense(512, activation='relu', input_shape=(10000,)))
 #model.add(Dense(512, activation='relu'))
 #model.add(Dense(31, activation='softmax'))
 model.add(Conv2D(32, (3, 3), padding='same', activation='relu',
-                 input_shape=(32, 32, 3)))
+                 input_shape=(50, 50, 3)))
 model.add(Conv2D(32, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
@@ -95,3 +89,20 @@ plt.xlabel('Epochs ',fontsize=16)
 plt.ylabel('Accuracy',fontsize=16)
 plt.title('Accuracy Curves',fontsize=16)
 plt.savefig('accuracy.png')
+
+
+# prediction
+testing = np.load('input/test_images.npy', encoding='bytes')
+
+testing_features = np.zeros(shape=(10000, 50, 50, 3), dtype=float)
+for i in range(len(testing_features)):
+	temp_img = cleanNoise(testing_features[i, 1])
+	temp_img = TrimImage(temp_img)
+    testing_features[i, :, :, 0] = temp_img
+    testing_features[i, :, :, 1] = temp_img
+    testing_features[i, :, :, 2] = temp_img
+
+testing_features /= 255
+
+prediction = model.predict_classes(testing_features)
+print(prediction)
