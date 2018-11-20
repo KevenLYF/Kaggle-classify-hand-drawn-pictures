@@ -3,6 +3,9 @@ import cv2
 
 # img: flatten array (no need to reshape)
 # return: image (100 * 100) with noise removed, value is either 0 or 255
+
+
+IMG_SIZE = 56
 def filter(img, ratio):
     img = img.astype(np.uint8)
 
@@ -95,10 +98,10 @@ def TrimImage(img):
         right = img_dim[1]
         
     result = img[up:down, left:right]
-    result = cv2.resize(result, (50, 50)) 
+    result = cv2.resize(result, (IMG_SIZE, IMG_SIZE)) 
 
-    for i in range(50):
-        for j in range(50):
+    for i in range(IMG_SIZE):
+        for j in range(IMG_SIZE):
             if (result[i][j] > 100):
                 result[i][j] = 255
             else:

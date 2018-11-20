@@ -9,7 +9,9 @@ from keras.optimizers import SGD, Adam, RMSprop
 from keras.layers.core import Activation
 from keras import backend as K
 from keras.utils import np_utils
-from utility import cleanNoise, cleanNoise2, TrimImage
+from utility import cleanNoise, TrimImage
+
+IMG_SIZE = 56
 
 training_label = pd.read_csv('input/train_labels.csv')
 category_index = {}
@@ -26,19 +28,18 @@ targets = np.array(targets)
 
 training = np.load('input/train_images.npy', encoding='bytes')
 
-features = np.zeros(shape=(10000, 50, 50, 3), dtype=float)
+features = np.zeros(shape=(10000, IMG_SIZE, IMG_SIZE, 1), dtype=float)
 for i in range(10000):
     temp_img = cleanNoise(training[i, 1])
-    temp_img = cleanNoise2(temp_img)
     temp_img = TrimImage(temp_img)
     features[i, :, :, 0] = temp_img
-    features[i, :, :, 1] = temp_img
-    features[i, :, :, 2] = temp_img
+    #features[i, :, :, 1] = temp_img
+    #features[i, :, :, 2] = temp_img
 
 features /= 255
 
-training_feature = features[0:8000, :, :, :]
-testing_feature = features[8000:10000, :, :, :]
+training_feature = features[0:8000, :, :]
+testing_feature = features[8000:10000, :, :]
 training_target = targets[0:8000]
 testing_target = targets[8000:10000]
 
@@ -52,7 +53,7 @@ model = Sequential()
 #model.add(Dense(512, activation='relu'))
 #model.add(Dense(31, activation='softmax'))
 
-row, col, ch = 50, 50, 3
+row, col, ch = 56, 56, 1
 model.add(ZeroPadding2D((1, 1), input_shape=(row, col, ch)))
 
 
@@ -166,13 +167,13 @@ plt.savefig('accuracy.png')
 # prediction
 testing = np.load('input/test_images.npy', encoding='bytes')
 
-testing_features = np.zeros(shape=(10000, 50, 50, 3), dtype=float)
+testing_features = np.zeros(shape=(10000, IMG_SIZE, IMG_SIZE, 1), dtype=float)
 for i in range(len(testing)):
     temp_img = cleanNoise(testing[i, 1])
     temp_img = TrimImage(temp_img)
     testing_features[i, :, :, 0] = temp_img
-    testing_features[i, :, :, 1] = temp_img
-    testing_features[i, :, :, 2] = temp_img
+    #testing_features[i, :, :, 1] = temp_img
+    #testing_features[i, :, :, 2] = temp_img
 
 testing_features /= 255
 
