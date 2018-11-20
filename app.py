@@ -21,7 +21,7 @@ targets = np.array(targets)
 
 training = np.load('input/train_images.npy', encoding='bytes')
 
-features = np.zeros(shape=(10000, 30, 30, 3), dtype=float)
+features = np.zeros(shape=(10000, 32, 32, 3), dtype=float)
 for i in range(10000):
 	temp_img = cleanNoise(training[i, 1])
 	temp_img = TrimImage(temp_img)
@@ -52,7 +52,7 @@ model = Sequential()
 #model.add(Dense(512, activation='relu'))
 #model.add(Dense(31, activation='softmax'))
 model.add(Conv2D(32, (3, 3), padding='same', activation='relu',
-                 input_shape=(30, 30, 3)))
+                 input_shape=(32, 32, 3)))
 model.add(Conv2D(32, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
