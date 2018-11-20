@@ -85,3 +85,45 @@ def TrimImage(img):
     result = cv2.resize(result, (100, 100)) 
 
     return result
+
+def moveToMid(img):
+    img_dim = img.shape
+    up = 0
+    down = img_dim[0]
+    left = 0
+    right = img_dim[1]
+
+    for i in range(img_dim[0]):
+        if (np.any(img[i, :] == 255)):
+            break
+        up += 1
+
+    for i in range(img_dim[0] - 1, 0, -1):
+        if (np.any(img[i, :] == 255)):
+            break
+        down -= 1
+
+    for i in range(img_dim[1]):
+        if (np.any(img[:, i] == 255)):
+            break
+        left += 1
+
+    for i in range(img_dim[1] - 1, 0, -1):
+        if (np.any(img[:, i] == 255)):
+            break
+        right -= 1
+
+    if up > down or left > right:
+        return img
+
+    obj = img[up:down, left:right]
+    width = right - left
+    height = down - up
+    verInterval = int((100-height)/2)
+    horiInterval = int((100-width)/2)
+
+    newImg = np.array([[0]*100]*100)
+    for i in range(verInterval, verInterval + height):
+        newImg[i, horiInterval: horiInterval+width] = obj[i-verInterval]
+
+    return newImg
