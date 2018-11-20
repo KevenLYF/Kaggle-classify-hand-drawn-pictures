@@ -10,16 +10,18 @@ def filter(img, ratio):
     img = img.astype(np.uint8)
 
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
-    sizes = stats[1:, -1];
+    sizes = stats[1:, -1]
     nb_components = nb_components - 1
 
-
-    min_size = int(img.sum() / 255 * ratio)  # 0.45 is the relative ratio
+    min_size = int(img.sum() / 255 * ratio)
+    max_size = img.sum() / (10000 * 255) #remove left over noise object
     img2 = np.zeros((output.shape))
 
     for i in range(0, nb_components):
         if sizes[i] >= min_size:
             img2[output == i + 1] = 255
+        if max_size < 0.002:
+            img2[output == i + 1] = 0
     return img2
 
 def cleanNoise(img):
@@ -31,12 +33,12 @@ def cleanNoise(img):
             else:
                 img[i][j] = 0
 
-    img2 = filter(img, 0.04)
-    img2 = filter(img2, 0.3)
-    img2 = filter(img2, 0.35)
-    img2 = filter(img2, 0.4)
-    img2 = filter(img2, 0.45)
-    img2 = filter(img2, 0.5)
+    img2 = filter(img, 0.02)
+    ratio = 0.05
+    for i in range(10):
+        img2 = filter(img2, ratio)
+        ratio += 0.05
+
     img2 = filter(img2, 0.52)
 
     return img2
