@@ -58,15 +58,16 @@ def TrimImage(img):
         left = 0
         right = img_dim[1]
 
+
     if down - up > right - left:
         diff = (down - up) - (right - left)
         right += int(diff/2)
         left -= int(diff/2)
-    else:
+    elif right - left > down - up:
         diff = (right - left) - (down - up)
         down += int(diff/2)
         up -= int(diff/2)
-
+    
 
     if up < 0 :
         up = 0
@@ -74,10 +75,10 @@ def TrimImage(img):
     if left < 0 :
         left = 0
 
-    if down > 0 :
+    if down > img_dim[0] :
         down = img_dim[0]
 
-    if right > 0 :
+    if right > img_dim[1] :
         right = img_dim[1]
         
     result = img[up:down, left:right]
