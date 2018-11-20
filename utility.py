@@ -17,7 +17,7 @@ def cleanNoise(img):
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
     sizes = stats[1:, -1]; nb_components = nb_components - 1
 
-    min_size = int(img.sum()/255*0.06)  # 0.08 is the relative ratio
+    min_size = int(img.sum()/255*0.045)  # 0.08 is the relative ratio
     img2 = np.zeros((output.shape))
 
     for i in range(0, nb_components):
