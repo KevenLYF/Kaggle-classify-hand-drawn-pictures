@@ -101,10 +101,10 @@ def TrimImage(img):
 
     for i in range(50):
         for j in range(50):
-            if (img[i][j] > 200):
-                img[i][j] = 255
+            if (result[i][j] > 100):
+                result[i][j] = 255
             else:
-                img[i][j] = 0    
+                result[i][j] = 0
 
     return result
 
