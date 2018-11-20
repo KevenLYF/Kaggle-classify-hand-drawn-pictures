@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import keras.utils
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten
+from utility import cleanNoise, TrimImage
 
 training_label = pd.read_csv('input/train_labels.csv')
 category_index = {}
@@ -19,12 +20,16 @@ for index, row in training_label.iterrows():
 targets = np.array(targets)
 
 training = np.load('input/train_images.npy', encoding='bytes')
-features = np.ndarray(shape=(10000, 100, 100, 3), dtype=float)
+
+features = np.zeros(shape=(10000, 100, 100, 3), dtype=float)
 for i in range(10000):
-    features[i, :, :, 0] = training[i, 1].reshape(100, 100)
-#features = np.array(features)
-#features = features.reshape(10000, 100, 100, 1)
-#features = features.astype('float32')
+	temp_img = cleanNoise(training[i, 1])
+	temp_img = TrimImage(temp_img)
+    features[i, :, :, 0] = temp_img
+    features[i, :, :, 1] = temp_img
+    features[i, :, :, 2] = temp_img
+
+features /= 255
 
 training_feature = features[0:8000, :, :, :]
 testing_feature = features[8000:10000, :, :, :]
@@ -34,8 +39,6 @@ testing_target = targets[8000:10000]
 
 training_target_one_hot = keras.utils.to_categorical(training_target)
 testing_target_one_hot = keras.utils.to_categorical(testing_target)
-
-
 
 #testing = np.load('input/test_images.npy', encoding='bytes')
 #testing_target = testing[:, 0]
