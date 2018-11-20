@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import keras.utils
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten
+from keras.layers.core import Activation
+from keras import backend as K
+from keras.utils import np_utils
 from utility import cleanNoise, TrimImage
 
 training_label = pd.read_csv('input/train_labels.csv')
@@ -23,8 +26,8 @@ training = np.load('input/train_images.npy', encoding='bytes')
 
 features = np.zeros(shape=(10000, 50, 50, 3), dtype=float)
 for i in range(10000):
-	temp_img = cleanNoise(training[i, 1])
-	temp_img = TrimImage(temp_img)
+    temp_img = cleanNoise(training[i, 1])
+    temp_img = TrimImage(temp_img)
     features[i, :, :, 0] = temp_img
     features[i, :, :, 1] = temp_img
     features[i, :, :, 2] = temp_img
@@ -45,6 +48,7 @@ model = Sequential()
 #model.add(Dense(512, activation='relu', input_shape=(10000,)))
 #model.add(Dense(512, activation='relu'))
 #model.add(Dense(31, activation='softmax'))
+
 model.add(Conv2D(32, (3, 3), padding='same', activation='relu',
                  input_shape=(50, 50, 3)))
 model.add(Conv2D(32, (3, 3), activation='relu'))
@@ -65,11 +69,34 @@ model.add(Flatten())
 model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(31, activation='softmax'))
+'''
+model.add(Conv2D(40, kernel_size=5, padding="same",input_shape=(28, 28, 1),
+            activation = 'relu'))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+model.add(Conv2D(70, kernel_size=3, padding="same", activation = 'relu'))
+model.add(Conv2D(500, kernel_size=3, padding="same", activation = 'relu'))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
+model.add(Conv2D(1024, kernel_size=3, padding="valid", activation = 'relu'))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+model.add(Flatten())
+model.add(Dense(units=100, activation='relu'  ))
+model.add(Dropout(0.1))
+model.add(Dense(units=100, activation='relu'  ))
+model.add(Dropout(0.1))
+model.add(Dense(units=100, activation='relu'  ))
+model.add(Dropout(0.2))
+
+model.add(Dense(31))
+model.add(Activation("softmax"))
+'''
+model.compile(loss='categorical_crossentropy', optimizer='adam',
+              metrics=['accuracy'])
+
 
 history = model.fit(training_feature, training_target_one_hot, batch_size=256,
-                    epochs=20, verbose=1, validation_data=(testing_feature,
+                    epochs=40, verbose=1, validation_data=(testing_feature,
                                                            testing_target_one_hot))
 print(model.evaluate(testing_feature, testing_target_one_hot))
 plt.figure(figsize=[8,6])
@@ -95,9 +122,9 @@ plt.savefig('accuracy.png')
 testing = np.load('input/test_images.npy', encoding='bytes')
 
 testing_features = np.zeros(shape=(10000, 50, 50, 3), dtype=float)
-for i in range(len(testing_features)):
-	temp_img = cleanNoise(testing_features[i, 1])
-	temp_img = TrimImage(temp_img)
+for i in range(len(testing)):
+    temp_img = cleanNoise(testing[i, 1])
+    temp_img = TrimImage(temp_img)
     testing_features[i, :, :, 0] = temp_img
     testing_features[i, :, :, 1] = temp_img
     testing_features[i, :, :, 2] = temp_img
@@ -105,4 +132,17 @@ for i in range(len(testing_features)):
 testing_features /= 255
 
 prediction = model.predict_classes(testing_features)
-print(prediction)
+np.savetxt("prediction.csv", prediction, delimiter=",")
+prediction = prediction.astype('int')
+try:
+    file = open("output.csv",'w') 
+    file.write('Id,Category\n')
+    keys=list(category_index.keys())
+    values=list(category_index.values())
+    for i in range(len(prediction)):
+        cate = keys[values.index(prediction[i])]
+        file.write(str(i)+','+cate+'\n')
+
+    file.close()
+except:
+    pass
