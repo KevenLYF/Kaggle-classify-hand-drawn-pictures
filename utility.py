@@ -10,6 +10,7 @@ def filter(img, ratio):
     sizes = stats[1:, -1];
     nb_components = nb_components - 1
 
+
     min_size = int(img.sum() / 255 * ratio)  # 0.45 is the relative ratio
     img2 = np.zeros((output.shape))
 
