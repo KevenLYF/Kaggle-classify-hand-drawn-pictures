@@ -9,7 +9,7 @@ from keras.optimizers import SGD, Adam, RMSprop
 from keras.layers.core import Activation
 from keras import backend as K
 from keras.utils import np_utils
-from utility import cleanNoise, TrimImage, AugmentImages
+from utility import cleanNoise, cleanNoise3, TrimImage, AugmentImages
 
 IMG_SIZE = 56
 
