@@ -25,10 +25,16 @@ def filter(img, ratio):
     return img2
 
 def cleanNoise(img):
-    img = img.reshape(100, 100)
-    for i in range(100):
-        for j in range(100):
-            if (img[i][j] > 200):
+    size = 100
+    try:
+        img = img.reshape(size, size)
+    except:
+        size = IMG_SIZE
+        img = img.reshape(size, size)
+
+    for i in range(size):
+        for j in range(size):
+            if (img[i][j] > 125):
                 img[i][j] = 255
             else:
                 img[i][j] = 0
@@ -44,7 +50,18 @@ def cleanNoise(img):
     return img2
 
 def cleanNoise3(img):
-    img = img.reshape(100, 100)
+    size = 100
+    try:
+        img = img.reshape(size, size)
+    except:
+        size = IMG_SIZE
+        img = img.reshape(size, size)
+
+    for i in range(size):
+        for j in range(size):
+            if (img[i][j] < 50):
+                img[i][j] = 0
+
     img=img.astype(np.uint8)
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=4)
     sizes = stats[:, -1]
@@ -59,16 +76,16 @@ def cleanNoise3(img):
     img2 = np.array(img)
     img2[output != max_label] = 0
 
-    for i in range(100):
-        for j in range(100):
-            if (img2[i][j] > 200):
-                img2[i][j] = 255
-            else:
-                img2[i][j] = 0
+    #for i in range(size):
+    #    for j in range(size):
+    #        if (img2[i][j] > 200):
+    #            img2[i][j] = 255
+    #        else:
+    #            img2[i][j] = 0
 
-    min_value = 200 #TODO
-    if (img2.sum() < min_value):
-        img2.fill(0)
+    #min_value = 25 * 255
+    #if (img2.sum() < min_value):
+    #    img2.fill(0)
     return img2
     
 def TrimImage(img):
@@ -130,12 +147,12 @@ def TrimImage(img):
     result = img[up:down, left:right]
     result = cv2.resize(result, (IMG_SIZE, IMG_SIZE)) 
 
-    for i in range(IMG_SIZE):
-        for j in range(IMG_SIZE):
-            if (result[i][j] > 100):
-                result[i][j] = 255
-            else:
-                result[i][j] = 0
+    #for i in range(IMG_SIZE):
+    #    for j in range(IMG_SIZE):
+    #        if (result[i][j] > 200):
+    #            result[i][j] = 255
+    #        else:
+    #            result[i][j] = 0
 
     return result
 

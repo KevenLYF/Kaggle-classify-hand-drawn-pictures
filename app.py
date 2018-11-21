@@ -25,13 +25,14 @@ targets = []
 for index, row in training_label.iterrows():
     targets.append(category_index[row['Category']])
 targets = np.array(targets)
-# targets = np.concatenate((targets, targets))
+#targets = np.concatenate((targets, targets))
 print(targets.shape)
 
 
 training = np.load('input/train_images.npy', encoding='bytes')
 
 features = np.zeros(shape=(10000, IMG_SIZE, IMG_SIZE, 1), dtype=float)
+testing_feature_origin = training[int(len(training)*0.8):len(training), 1]
 for i in range(10000):
     temp_img = cleanNoise3(training[i, 1])
     temp_img = TrimImage(temp_img)
@@ -39,7 +40,7 @@ for i in range(10000):
     #features[i, :, :, 1] = temp_img
     #features[i, :, :, 2] = temp_img
 
-# features = AugmentImages(features)
+#features = AugmentImages(features)
 print(features.shape)
 
 features /= 255
@@ -53,13 +54,12 @@ testing_target = targets[int(len(features)*0.8):len(features)]
 training_target_one_hot = keras.utils.to_categorical(training_target)
 testing_target_one_hot = keras.utils.to_categorical(testing_target)
 
-
 model = Sequential()
 #model.add(Dense(512, activation='relu', input_shape=(10000,)))
 #model.add(Dense(512, activation='relu'))
 #model.add(Dense(31, activation='softmax'))
 
-row, col, ch = 56, 56, 1
+row, col, ch = IMG_SIZE, IMG_SIZE, 1
 model.add(ZeroPadding2D((1, 1), input_shape=(row, col, ch)))
 
 
@@ -87,11 +87,11 @@ model.add(Dropout(0.5))
 model.add(Dense(512, name='dense1'))  #1024
 # model.add(BatchNormalization())
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.5)) #0.5
 
 model.add(Dense(256, name='dense2'))  #1024
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.5)) #0.5
 
 model.add(Dense(31,name='output'))
 model.add(Activation('softmax'))  #softmax since output is within 50 classes
@@ -142,15 +142,36 @@ model.add(Dropout(0.2))
 
 model.add(Dense(31))
 model.add(Activation("softmax"))
-'''
+
 model.compile(loss='categorical_crossentropy', optimizer='adam',
               metrics=['accuracy'])
-
+'''
 
 history = model.fit(training_feature, training_target_one_hot, batch_size=256,
-                    epochs=40, verbose=1, validation_data=(testing_feature,
+                    epochs=80, verbose=1, validation_data=(testing_feature,
                                                            testing_target_one_hot))
 print(model.evaluate(testing_feature, testing_target_one_hot))
+
+
+keys=list(category_index.keys())
+values=list(category_index.values())
+incorrects = np.nonzero(model.predict_classes(testing_feature).reshape((-1,)) !=
+                        testing_target)
+for i in incorrects[0]:
+    fig = plt.figure(figsize=[8,6])
+    fig.add_subplot(1,2,1)
+    plt.imshow(testing_feature_origin[i].reshape(100, 100))
+    fig.add_subplot(1,2,2)
+    plt.imshow(testing_feature[i].reshape(IMG_SIZE, IMG_SIZE))
+    right = keys[values.index(testing_target[i])]
+    current_feature = np.zeros((1, 56, 56, 1))
+    current_feature[0, :, :, :] = testing_feature[i]
+    wrong = keys[values.index(model.predict_classes(current_feature))]
+    plt.title('{}/{}'.format(right, wrong))
+    plt.savefig('wrong/{}.jpg'.format(i))
+    plt.close(fig)
+
+
 plt.figure(figsize=[8,6])
 plt.plot(history.history['loss'],'r',linewidth=3.0)
 plt.plot(history.history['val_loss'],'b',linewidth=3.0)
