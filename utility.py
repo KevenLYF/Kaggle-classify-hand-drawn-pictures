@@ -43,6 +43,22 @@ def cleanNoise(img):
 
     return img2
 
+def cleanNoise3(img):
+    img=img.astype(np.uint8)
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=4)
+    sizes = stats[:, -1]
+
+    max_label = 1
+    max_size = sizes[1]
+    for i in range(2, nb_components):
+        if sizes[i] > max_size:
+            max_label = i
+            max_size = sizes[i]
+
+    img2 = np.zeros(output.shape)
+    img2[output == max_label] = 255
+    return img2
+    
 def TrimImage(img):
     img_dim = img.shape
     up = 0

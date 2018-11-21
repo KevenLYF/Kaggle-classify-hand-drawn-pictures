@@ -25,7 +25,7 @@ targets = []
 for index, row in training_label.iterrows():
     targets.append(category_index[row['Category']])
 targets = np.array(targets)
-targets = np.concatenate((targets, targets))
+# targets = np.concatenate((targets, targets))
 print(targets.shape)
 
 
@@ -33,21 +33,21 @@ training = np.load('input/train_images.npy', encoding='bytes')
 
 features = np.zeros(shape=(10000, IMG_SIZE, IMG_SIZE, 1), dtype=float)
 for i in range(10000):
-    temp_img = cleanNoise(training[i, 1])
+    temp_img = cleanNoise3(training[i, 1])
     temp_img = TrimImage(temp_img)
     features[i, :, :, 0] = temp_img
     #features[i, :, :, 1] = temp_img
     #features[i, :, :, 2] = temp_img
 
-features = AugmentImages(features)
+# features = AugmentImages(features)
 print(features.shape)
 
 features /= 255
 
-training_feature = features[0:8000, :, :]
-testing_feature = features[8000:10000, :, :]
-training_target = targets[0:8000]
-testing_target = targets[8000:10000]
+training_feature = features[0:int(len(features)*0.8), :, :]
+testing_feature = features[int(len(features)*0.8):len(features), :, :]
+training_target = targets[0:int(len(features)*0.8)]
+testing_target = targets[int(len(features)*0.8):len(features)]
 
 
 training_target_one_hot = keras.utils.to_categorical(training_target)
@@ -175,7 +175,7 @@ testing = np.load('input/test_images.npy', encoding='bytes')
 
 testing_features = np.zeros(shape=(10000, IMG_SIZE, IMG_SIZE, 1), dtype=float)
 for i in range(len(testing)):
-    temp_img = cleanNoise(testing[i, 1])
+    temp_img = cleanNoise3(testing[i, 1])
     temp_img = TrimImage(temp_img)
     testing_features[i, :, :, 0] = temp_img
     #testing_features[i, :, :, 1] = temp_img
