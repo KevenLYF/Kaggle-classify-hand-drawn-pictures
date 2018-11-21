@@ -65,6 +65,10 @@ def cleanNoise3(img):
                 img2[i][j] = 255
             else:
                 img2[i][j] = 0
+
+    min_value = 200 #TODO
+    if (img2.sum() < min_value):
+        img2.fill(0)
     return img2
     
 def TrimImage(img):
