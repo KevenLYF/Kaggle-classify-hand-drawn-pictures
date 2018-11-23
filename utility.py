@@ -5,7 +5,7 @@ import cv2
 # return: image (100 * 100) with noise removed, value is either 0 or 255
 
 
-IMG_SIZE = 56
+IMG_SIZE = 64
 def filter(img, ratio):
     img = img.astype(np.uint8)
 
@@ -59,7 +59,7 @@ def cleanNoise3(img):
 
     for i in range(size):
         for j in range(size):
-            if (img[i][j] < 50):
+            if (img[i][j] < 100):
                 img[i][j] = 0
 
     img=img.astype(np.uint8)
@@ -83,8 +83,8 @@ def cleanNoise3(img):
     #        else:
     #            img2[i][j] = 0
 
-    #min_value = 25 * 255
-    #if (img2.sum() < min_value):
+    #min_value = 35
+    #if ((img2 > 0).sum() < min_value):
     #    img2.fill(0)
     return img2
     
@@ -145,7 +145,9 @@ def TrimImage(img):
         right = img_dim[1]
         
     result = img[up:down, left:right]
-    result = cv2.resize(result, (IMG_SIZE, IMG_SIZE)) 
+    frame = np.zeros((result.shape[0]+6, result.shape[1]+6))
+    frame[3:frame.shape[0]-3, 3:frame.shape[1]-3] = result
+    result = cv2.resize(frame, (IMG_SIZE, IMG_SIZE)) 
 
     #for i in range(IMG_SIZE):
     #    for j in range(IMG_SIZE):

@@ -10,10 +10,11 @@ from keras.layers.core import Activation
 from keras import backend as K
 from keras.utils import np_utils
 from utility import cleanNoise, cleanNoise3, TrimImage, AugmentImages
+from keras.preprocessing.image import ImageDataGenerator
 
-IMG_SIZE = 56
+IMG_SIZE = 64
 
-training_label = pd.read_csv('data/train_labels.csv')
+training_label = pd.read_csv('input/train_labels.csv')
 category_index = {}
 current_index = 0
 for index, row in training_label.iterrows():
@@ -29,7 +30,7 @@ targets = np.array(targets)
 print(targets.shape)
 
 
-training = np.load('data/train_images.npy', encoding='bytes')
+training = np.load('input/train_images.npy', encoding='bytes')
 
 features = np.zeros(shape=(10000, IMG_SIZE, IMG_SIZE, 1), dtype=float)
 testing_feature_origin = training[int(len(training)*0.8):len(training), 1]
@@ -104,7 +105,7 @@ model.add(Dropout(0.5))
 
 # Layer 4
 model.add(Convolution2D(filters= 256, kernel_size =(3,3), strides= (1,1),
-padding='same', name='conv3'))  #256
+padding='same', name='conv4'))  #256
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 
@@ -115,8 +116,21 @@ model.add(Activation('relu'))
 
 model.add(MaxPooling2D(pool_size=(2,2),strides=(2,2), name='pool4'))
 model.add(Dropout(0.5))
+'''
+# Layer 5
+model.add(Convolution2D(filters= 512, kernel_size =(3,3), strides= (1,1),
+                        padding='same', name='conv5'))  #256
+model.add(BatchNormalization())
+model.add(Activation('relu'))
 
+model.add(Convolution2D(filters= 512, kernel_size =(3,3), strides= (1,1),
+                        padding='same', name='conv5_2'))  #256
+model.add(BatchNormalization())
+model.add(Activation('relu'))
 
+#model.add(MaxPooling2D(pool_size=(2,2),strides=(1,1), name='pool5'))
+model.add(Dropout(0.5))
+'''
 model.add(Flatten())
 
 model.add(Dense(512, name='dense1'))  #1024
@@ -135,11 +149,23 @@ model.add(Activation('softmax'))  #softmax since output is within 50 classes
 model.compile(loss='categorical_crossentropy', optimizer=Adam(),
               metrics=['accuracy'])
 
+# augmentation
+batch_size = 256
+epochs = 200
+datagen = ImageDataGenerator(
+    rotation_range=30.,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    zoom_range=0.05,
+    horizontal_flip=True,
+    vertical_flip=False)
 
+datagen.fit(training_feature)
+history = model.fit_generator(datagen.flow(training_feature, training_target_one_hot, batch_size=batch_size), steps_per_epoch=128,epochs=epochs, validation_data=(testing_feature, testing_target_one_hot), workers=4)
 
-history = model.fit(training_feature, training_target_one_hot, batch_size=256,
-                    epochs=80, verbose=1, validation_data=(testing_feature,
-                                                           testing_target_one_hot))
+#history = model.fit(training_feature, training_target_one_hot, batch_size=256,
+#                    epochs=80, verbose=1, validation_data=(testing_feature,
+#                                                           testing_target_one_hot))
 print(model.evaluate(testing_feature, testing_target_one_hot))
 
 
@@ -162,23 +188,23 @@ print(model.evaluate(testing_feature, testing_target_one_hot))
 #     plt.close(fig)
 
 
-# plt.figure(figsize=[8,6])
-# plt.plot(history.history['loss'],'r',linewidth=3.0)
-# plt.plot(history.history['val_loss'],'b',linewidth=3.0)
-# plt.legend(['Training loss', 'Validation Loss'],fontsize=18)
-# plt.xlabel('Epochs ',fontsize=16)
-# plt.ylabel('Loss',fontsize=16)
-# plt.title('Loss Curves',fontsize=16)
-# plt.savefig('lost.png')
-#
-# plt.figure(figsize=[8,6])
-# plt.plot(history.history['acc'],'r',linewidth=3.0)
-# plt.plot(history.history['val_acc'],'b',linewidth=3.0)
-# plt.legend(['Training Accuracy', 'Validation Accuracy'],fontsize=18)
-# plt.xlabel('Epochs ',fontsize=16)
-# plt.ylabel('Accuracy',fontsize=16)
-# plt.title('Accuracy Curves',fontsize=16)
-# plt.savefig('accuracy.png')
+plt.figure(figsize=[8,6])
+plt.plot(history.history['loss'],'r',linewidth=3.0)
+plt.plot(history.history['val_loss'],'b',linewidth=3.0)
+plt.legend(['Training loss', 'Validation Loss'],fontsize=18)
+plt.xlabel('Epochs ',fontsize=16)
+plt.ylabel('Loss',fontsize=16)
+plt.title('Loss Curves',fontsize=16)
+plt.savefig('lost.png')
+
+plt.figure(figsize=[8,6])
+plt.plot(history.history['acc'],'r',linewidth=3.0)
+plt.plot(history.history['val_acc'],'b',linewidth=3.0)
+plt.legend(['Training Accuracy', 'Validation Accuracy'],fontsize=18)
+plt.xlabel('Epochs ',fontsize=16)
+plt.ylabel('Accuracy',fontsize=16)
+plt.title('Accuracy Curves',fontsize=16)
+plt.savefig('accuracy.png')
 
 
 # prediction
