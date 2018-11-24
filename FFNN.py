@@ -124,9 +124,9 @@ def getData():
     targets = np.array(targets)
 
     training = np.load('input/train_images.npy', encoding='bytes')
-    data = np.zeros(shape=(100, IMG_SIZE*IMG_SIZE + 1), dtype=float)
+    data = np.zeros(shape=(10000, IMG_SIZE*IMG_SIZE + 1), dtype=float)
 
-    for i in range(100):
+    for i in range(10000):
         temp_img = cleanNoise3(training[i, 1])
         temp_img = TrimImage(temp_img)
         temp_img = temp_img.flatten()
