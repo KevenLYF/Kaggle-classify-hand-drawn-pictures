@@ -208,3 +208,10 @@ def AugmentImages(images):
         result[i] = horizontal_img
     result = np.vstack((images, result))
     return result
+
+def sharpening(images):
+    for i in range(IMG_SIZE):
+        for j in range(IMG_SIZE):
+            if(images[i][j] < 125):
+                images[i][j] = 0
+    return images
