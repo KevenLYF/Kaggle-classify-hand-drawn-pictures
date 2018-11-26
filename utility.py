@@ -24,6 +24,29 @@ def filter(img, ratio):
             img2[output == i + 1] = 0
     return img2
 
+def pre_clean(img):
+    for i in range(IMG_SIZE):
+        for j in range(IMG_SIZE):
+            if (img[i][j] > 150):
+                img[i][j] = 255
+            else:
+                img[i][j] = 0
+
+    img = img.astype(np.uint8)
+
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
+    sizes = stats[1:, -1]
+    nb_components = nb_components - 1
+
+    min_size = int(img.sum() / 255 * 0.5)
+    max_size = img.sum() / (10000 * 255)  # remove left over noise object
+    img2 = np.zeros((output.shape))
+
+    for i in range(0, nb_components):
+        if sizes[i] >= min_size:
+            img2[output == i + 1] = 255
+    return img2
+
 def cleanNoise(img):
     size = 100
     try:
