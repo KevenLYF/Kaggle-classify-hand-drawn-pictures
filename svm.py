@@ -39,25 +39,25 @@ def gridSearch_SVM(X_train, y_train):
     best_param = gs.best_params_
     print("The F1 measure = {} \nC = {}\nDual = {}".format(best_score, best_param.get('C'), best_param.get('dual')))
 
-count = 0
-countAll = 0
-for i in range(20):
+# count = 0
+# countAll = 0
+for i in range(10000):
     trainX[i] = cleanNoise3(trainX[i])
     trainX[i] = pre_clean(trainX[i])
     trainX[i] = TrimImage(trainX[i])
     trainX[i] = sharpening(trainX[i])
     # trainX[i] = moveToMid(trainX[i])
-    # trainX[i] = trainX[i].flatten()
+    trainX[i] = trainX[i].flatten()
     # if (trainX[i] == 0).all():
     #     if (trainY[i] == 'empty'):
     #         print(str(i))
     #         count += 1
     #     countAll += 1
-    plt.imshow(trainX[i])
-    plt.show()
+    # plt.imshow(trainX[i])
+    # plt.show()
 
 #
 # print(count)
 # print(countAll)
 
-# gridSearch_SVM(trainX, trainY)
+gridSearch_SVM(trainX, trainY)
